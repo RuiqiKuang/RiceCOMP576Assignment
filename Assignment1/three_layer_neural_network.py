@@ -2,6 +2,7 @@ __author__ = 'tan_nguyen'
 
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 from sklearn import datasets, linear_model
 
 
@@ -40,7 +41,7 @@ def plot_decision_boundary(pred_func, X, y):
 
 ########################################################################################################################
 ########################################################################################################################
-# YOUR ASSSIGMENT STARTS HERE
+# YOUR ASSIGNMENT STARTS HERE
 # FOLLOW THE INSTRUCTION BELOW TO BUILD AND TRAIN A 3-LAYER NEURAL NETWORK
 ########################################################################################################################
 ########################################################################################################################
@@ -50,14 +51,18 @@ class NeuralNetwork(object):
     """
 
     def __init__(self, nn_input_dim, nn_hidden_dim, nn_output_dim, actFun_type='tanh', reg_lambda=0.01, seed=0):
-        '''
+        """
         :param nn_input_dim: input dimension
         :param nn_hidden_dim: the number of hidden units
         :param nn_output_dim: output dimension
         :param actFun_type: type of activation function. 3 options: 'tanh', 'sigmoid', 'relu'
         :param reg_lambda: regularization coefficient
         :param seed: random seed
-        '''
+        """
+        self.probs = None
+        self.z2 = None
+        self.a1 = None
+        self.z1 = None
         self.nn_input_dim = nn_input_dim
         self.nn_hidden_dim = nn_hidden_dim
         self.nn_output_dim = nn_output_dim
@@ -78,10 +83,14 @@ class NeuralNetwork(object):
         :param type: Tanh, Sigmoid, or ReLU
         :return: activations
         """
-
-        # YOU IMPLMENT YOUR actFun HERE
-
-        return None
+        res = 0
+        if type == 'tanh':
+            res = (math.exp(z) - math.exp(-z)) / (math.exp(z) + math.exp(-z))
+        elif type == 'sigmoid':
+            res = 1 / (1 + math.exp(-z))
+        elif type == 'relu':
+            res = max(0, z)
+        return res
 
     def diff_actFun(self, z, type):
         """
@@ -90,10 +99,17 @@ class NeuralNetwork(object):
         :param type: Tanh, Sigmoid, or ReLU
         :return: the derivatives of the activation functions wrt the net input
         """
-
-        # YOU IMPLEMENT YOUR diff_actFun HERE
-
-        return None
+        res = 0
+        if type == 'tanh':
+            res = 4 * math.exp(2 * z) / ((math.exp(2 * z) + 1) ** 2)
+        elif type == 'sigmoid':
+            res = math.exp(-z) / ((1 + math.exp(-z)) ** 2)
+        elif type == 'relu':
+            if z > 0:
+                res = z
+            else:
+                res = 0
+        return res
 
     def feedforward(self, X, actFun):
         """
@@ -105,11 +121,18 @@ class NeuralNetwork(object):
         """
 
         # YOU IMPLEMENT YOUR feedforward HERE
+        def softmax(x):
+            assert (len(x.shape) == 2)
+            row_max = np.max(x, axis=axis).reshape(-1, 1)
+            x -= row_max
+            X_exp = np.exp(x)
+            s = X_exp / np.sum(X_exp, axis=axis, keepdims=True)
+            return s
 
-        # self.z1 =
-        # self.a1 =
-        # self.z2 =
-        # self.probs =
+        self.z1 = np.dot(self.W1, X) + self.b1
+        self.a1 = self.actFun(self.z1, actFun)
+        self.z2 = np.dot(self.W2, self.z1) + self.b2
+        self.probs = softmax(self.z2)
         return None
 
     def calculate_loss(self, X, y):
@@ -121,13 +144,16 @@ class NeuralNetwork(object):
         """
         num_examples = len(X)
         self.feedforward(X, lambda x: self.actFun(x, type=self.actFun_type))
+
         # Calculating the loss
+        def CCE(y_label, y_predicted):
+            cce_class = y_label * (np.log(y_predicted))
+            sum_cce = np.sum(cce_class)
+            return -sum_cce
 
-        # YOU IMPLEMENT YOUR CALCULATION OF THE LOSS HERE
+        data_loss = CCE(y, self.probs)
 
-        # data_loss =
-
-        # Add regulatization term to loss (optional)
+        # Add regularization term to loss (optional)
         data_loss += self.reg_lambda / 2 * (np.sum(np.square(self.W1)) + np.sum(np.square(self.W2)))
         return (1. / num_examples) * data_loss
 
