@@ -99,7 +99,7 @@ class NeuralNetwork(object):
         :param type: Tanh, Sigmoid, or ReLU
         :return: the derivatives of the activation functions wrt the net input
         """
-        res = 0
+        res = 0.0
         if type == 'tanh':
             res = 4 * np.exp(2 * z) / ((np.exp(2 * z) + 1) ** 2)
         elif type == 'sigmoid':

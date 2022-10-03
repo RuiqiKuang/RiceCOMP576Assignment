@@ -12,7 +12,9 @@ def generate_data():
     :return: X: input data, y: given labels
     """
     np.random.seed(0)
-    X, y = datasets.make_moons(200, noise=0.20)
+    X, y = datasets.make_blobs(n_samples=1000, n_features=2, centers=4, cluster_std=1.0, center_box=(-10.0, 10.0),
+                               shuffle=True, random_state=None)
+    # X, y = datasets.make_moons(200, noise=0.20)
     return X, y
 
 
@@ -37,6 +39,7 @@ def plot_decision_boundary(pred_func, X, y):
     plt.contourf(xx, yy, Z, cmap=plt.cm.Spectral)
     plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Spectral)
     plt.show()
+
 
 class Layer(object):
     def __init__(self, layerID, in_dim, out_dim, actFun_type, reg_lambda, seed):
@@ -78,7 +81,7 @@ class Layer(object):
         :param type: Tanh, Sigmoid, or ReLU
         :return: the derivatives of the activation functions wrt the net input
         """
-        res = 0
+        res = 0.0
         if type == 'tanh':
             res = 4 * np.exp(2 * z) / ((np.exp(2 * z) + 1) ** 2)
         elif type == 'sigmoid':
@@ -243,7 +246,7 @@ class NeuralNetwork(object):
         for i in range(self.nn_num_layers - 2, -1, -1):
             self.layers[i].backprop(self.layers[i + 1].layer_W, self.layers[i + 1].delta)
 
-    def fit_model(self, X, y, epsilon=0.01, num_passes=20000, print_loss=True):
+    def fit_model(self, X, y, epsilon=0.01, num_passes=30000, print_loss=True):
         """
         fit_model uses backpropagation to train the network
         :param epsilon:
@@ -287,9 +290,9 @@ class NeuralNetwork(object):
 def main():
     # generate and visualize Make-Moons dataset
     X, y = generate_data()
-    # plt.scatter(X[:, 0], X[:, 1], s=40, c=y, cmap=plt.cm.Spectral)
-    # plt.show()
-    model = NeuralNetwork(nn_input_dim=2, nn_hidden_dim=3, nn_num_layers=5, nn_output_dim=2, actFun_type='tanh')
+    plt.scatter(X[:, 0], X[:, 1], s=40, c=y, cmap=plt.cm.Spectral)
+    plt.show()
+    model = NeuralNetwork(nn_input_dim=2, nn_hidden_dim=6, nn_num_layers=5, nn_output_dim=4, actFun_type='relu')
     model.fit_model(X, y)
     model.visualize_decision_boundary(X, y)
 
