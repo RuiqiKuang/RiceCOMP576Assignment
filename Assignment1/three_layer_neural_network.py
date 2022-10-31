@@ -118,10 +118,13 @@ class NeuralNetwork(object):
         """
 
         # YOU IMPLEMENT YOUR feedforward HERE
-
+        # print("X shape:", X.shape)
         self.z1 = np.dot(X, self.W1) + self.b1
+        # print("z1 shape:",self.z1.shape)
         self.a1 = actFun(self.z1)
+        # print("a1 shape:", self.a1.shape)
         self.z2 = np.dot(self.a1, self.W2) + self.b2
+        # print("z2 shape:", self.z2.shape)
         exp_sum = np.exp(self.z2)
         self.probs = exp_sum / np.sum(exp_sum, axis=1, keepdims=True)
         return None
@@ -134,12 +137,11 @@ class NeuralNetwork(object):
         :return: the loss for prediction
         """
         num_examples = len(X)
+        # print(num_examples)
         self.feedforward(X, lambda x: self.actFun(x, type=self.actFun_type))
 
         # Calculating the loss
-
         data_loss = np.sum(np.dot(y, np.log(self.probs)))
-
         # Add regularization term to loss (optional)
         data_loss += self.reg_lambda / 2 * (np.sum(np.square(self.W1)) + np.sum(np.square(self.W2)))
         return (1. / num_examples) * data_loss
@@ -216,9 +218,9 @@ class NeuralNetwork(object):
 def main():
     # generate and visualize Make-Moons dataset
     X, y = generate_data()
-    # plt.scatter(X[:, 0], X[:, 1], s=40, c=y, cmap=plt.cm.Spectral)
-    # plt.show()
-    model = NeuralNetwork(nn_input_dim=2, nn_hidden_dim=30, nn_output_dim=2, actFun_type='tanh')
+    plt.scatter(X[:, 0], X[:, 1], s=40, c=y, cmap=plt.cm.Spectral)
+    plt.show()
+    model = NeuralNetwork(nn_input_dim=2, nn_hidden_dim=3, nn_output_dim=2, actFun_type='relu')
     model.fit_model(X, y)
     model.visualize_decision_boundary(X, y)
 
