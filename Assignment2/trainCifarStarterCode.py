@@ -1,10 +1,10 @@
+import imageio
 import matplotlib as mp
 import matplotlib.pyplot as plt
 import numpy as np
 import random
 import tensorflow.compat.v1 as tf
 from scipy import misc
-import imageio
 
 tf.disable_v2_behavior()
 
@@ -160,15 +160,16 @@ batch_xs = np.zeros(
 batch_ys = np.zeros((batchsize, nclass))  # setup as [batchsize, the how many classes]
 loss_list = []
 acc_list = []
+weight_first_layer = None
 for i in range(2000):
-    perm = np.arange(ntrain*nclass)
+    perm = np.arange(ntrain * nclass)
     np.random.shuffle(perm)
     for j in range(batchsize):
         batch_xs[j, :, :, :] = Train[perm[j], :, :, :]
         batch_ys[j, :] = LTrain[perm[j], :]
     loss = cross_entropy.eval(feed_dict={tf_data: batch_xs, tf_labels: batch_ys, keep_prob: 0.5})
     acc = accuracy.eval(feed_dict={tf_data: batch_xs, tf_labels: batch_ys, keep_prob: 0.5})
-    first_weight = W_1.eval()
+    weight_first_layer = W_1.eval()
     loss_list.append(loss)
     acc_list.append(acc)
     if i % 10 == 0:
@@ -186,13 +187,13 @@ print("test accuracy %g" % accuracy.eval(feed_dict={tf_data: Test, tf_labels: LT
 sess.close()
 
 # Plot the accuracy and loss under different parameters
-fig, ax = plt.subplots()
-ax.plot(range(len(acc_list)), acc_list, 'k', label='accuracy for AdamOptimizer')
+_, ax = plt.subplots()
+ax.plot(range(len(acc_list)), acc_list, 'k', label='accuracy')
 ax.legend(loc='upper right', shadow=True)
 plt.show()
 
-fig, bx = plt.subplots()
-bx.plot(range(len(loss_list)), loss_list, 'k', label='loss for AdamOptimizer')
+_, bx = plt.subplots()
+bx.plot(range(len(loss_list)), loss_list, 'k', label='loss')
 bx.legend(loc='upper right', shadow=True)
 plt.show()
 
@@ -200,5 +201,5 @@ plt.show()
 fig = plt.figure()
 for i in range(32):
     ax = fig.add_subplot(4, 8, 1 + i)
-    ax.imshow(first_weight[:, :, 0, i], cmap='gray')
+    ax.imshow(weight_first_layer[:, :, 0, i], cmap='gray')
 plt.show()
