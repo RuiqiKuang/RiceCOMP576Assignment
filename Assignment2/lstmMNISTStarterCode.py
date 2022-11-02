@@ -14,7 +14,7 @@ displayStep = 10
 Cell_name = ""
 nInput = 28  # we want the input to take the 28 pixels
 nSteps = 28  # every 28
-nHidden = 128  # number of neurons for the RNN
+nHidden = 256  # number of neurons for the RNN
 nClasses = 10  # this is MNIST so you know
 
 x = tf.placeholder('float', [None, nSteps, nInput])
@@ -36,10 +36,10 @@ def RNN(x, weights, biases):
     x = tf.split(x, nSteps, axis=0)  # configuring so you can get it as needed for the 28 pixels
 
     # find which lstm to use in the documentation
-    # lstmCell = rnn_cell.BasicLSTMCell(nHidden, forget_bias=1.0)
+    lstmCell = rnn_cell.BasicLSTMCell(nHidden, forget_bias=1.0)
     # lstmCell = rnn_cell.GRUCell(nHidden)
-    lstmCell = rnn_cell.BasicRNNCell(nHidden)
-    Cell_name = 'BasicRNNCell'
+    # lstmCell = rnn_cell.BasicRNNCell(nHidden)
+    Cell_name = 'BasicLSTMCell'
     outputs, states = rnn.static_rnn(lstmCell, x,
                                      dtype=tf.float32)  # for the rnn where to get the output and hidden state
 
@@ -96,10 +96,8 @@ _, ax = plt.subplots()
 ax.plot(range(len(acc_list)), acc_list, 'k', label='accuracy')
 ax.legend(loc='upper right', shadow=True)
 plt.savefig('./pictures/' + Cell_name + '_acc.png')
-plt.show()
 
 _, bx = plt.subplots()
 bx.plot(range(len(loss_list)), loss_list, 'k', label='loss')
 bx.legend(loc='upper right', shadow=True)
 plt.savefig('./pictures/' + Cell_name + '_loss.png')
-plt.show()

@@ -103,7 +103,8 @@ for iclass in range(0, nclass):
 sess = tf.InteractiveSession()
 
 tf_data = tf.placeholder(dtype=tf.float32, shape=[None, imsize, imsize,
-                                                  nchannels])  # tf variable for the data, remember shape is [None, width, height, numberOfChannels]
+                                                  nchannels])  # tf variable for the data, remember shape is [None,
+# width, height, numberOfChannels]
 tf_labels = tf.placeholder(dtype=tf.float32, shape=[None, nclass])  # tf variable for labels
 
 # --------------------------------------------------
@@ -146,6 +147,7 @@ h_fc2 = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 cross_entropy = tf.reduce_mean(
     tf.nn.softmax_cross_entropy_with_logits(labels=tf_labels, logits=h_fc2))
 opt = tf.train.AdamOptimizer(1e-3)
+optimizer_name = "AdamOptimizer"
 optimizer = opt.minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(h_fc2, 1), tf.argmax(tf_labels, 1))
 
@@ -190,16 +192,17 @@ sess.close()
 _, ax = plt.subplots()
 ax.plot(range(len(acc_list)), acc_list, 'k', label='accuracy')
 ax.legend(loc='upper right', shadow=True)
-plt.show()
+plt.savefig('./pictures/' + optimizer_name + '_acc.png')
 
 _, bx = plt.subplots()
 bx.plot(range(len(loss_list)), loss_list, 'k', label='loss')
 bx.legend(loc='upper right', shadow=True)
-plt.show()
+plt.savefig('./pictures/' + optimizer_name + '_loss.png')
 
 # Plot the filters of the first layer
 fig = plt.figure()
 for i in range(32):
-    ax = fig.add_subplot(4, 8, 1 + i)
+    ax = fig.add_subplot(6, 6, 1 + i)
     ax.imshow(weight_first_layer[:, :, 0, i], cmap='gray')
-plt.show()
+plt.savefig('./pictures/weight_first_layer.png')
+
